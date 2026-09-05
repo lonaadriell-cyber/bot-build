@@ -1,0 +1,39 @@
+name: Web to APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      web_url:
+        description: 'URL Website'
+        required: true
+      app_name:
+        description: 'Nama Aplikasi'
+        required: true
+      icon_url:
+        description: 'URL Icon'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install PWABuilder
+        run: npm install -g @pwabuilder/cli
+
+      - name: Build APK
+        run: |
+          pwabuilder build --platform android --url "${{ github.event.inputs.web_url }}" --name "${{ github.event.inputs.app_name }}" --icon "${{ github.event.inputs.icon_url }}"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-app
+          path: ./*.apk
